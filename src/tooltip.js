@@ -6,6 +6,8 @@ import {
   Modal,
   TouchableWithoutFeedback,
   View,
+  TouchableHighlight,
+  Image
 } from 'react-native';
 import rfcIsEqual from 'react-fast-compare';
 import {
@@ -22,8 +24,14 @@ import {
 } from './geom';
 import styleGenerator from './styles';
 import TooltipChildrenContext from './tooltip-children.context';
+import L from '../../../app/common/Layout';
 
 export { TooltipChildrenContext };
+
+
+const { width, height } = Dimensions.get('window');
+const widthS = width;
+const heightS = height;
 
 const DEFAULT_DISPLAY_INSETS = {
   top: 24,
@@ -58,6 +66,8 @@ class Tooltip extends Component {
     childContentSpacing: 4,
     children: null,
     closeOnChildInteraction: true,
+    fixedRight: false,
+    fixedTop: false,
     content: <View />,
     displayInsets: {},
     isVisible: false,
@@ -84,6 +94,8 @@ class Tooltip extends Component {
     childContentSpacing: PropTypes.number,
     children: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     closeOnChildInteraction: PropTypes.bool,
+    fixedRight: PropTypes.bool,
+    fixedTop: PropTypes.bool,
     content: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     displayInsets: PropTypes.shape({
       top: PropTypes.number,
@@ -343,7 +355,7 @@ class Tooltip extends Component {
       <TooltipChildrenContext.Provider value={{ tooltipDuplicate: true }}>
         <View
           onTouchEnd={onTouchEnd}
-          pointerEvents={this.props.allowChildInteraction ? 'box-none' : 'none'}
+          pointerEvents='none'
           style={{
             position: 'absolute',
             height,
@@ -356,6 +368,7 @@ class Tooltip extends Component {
         >
           {this.props.children}
         </View>
+
       </TooltipChildrenContext.Provider>
     );
   };
@@ -376,10 +389,10 @@ class Tooltip extends Component {
     const hasChildren = React.Children.count(this.props.children) > 0;
 
     return (
-      <TouchableWithoutFeedback onPress={this.props.onClose}>
+      <TouchableWithoutFeedback >
         <View style={generatedStyles.containerStyle}>
           <View style={[generatedStyles.backgroundStyle]}>
-            <View style={generatedStyles.tooltipStyle}>
+            <View style={[generatedStyles.tooltipStyle, { right: this.props.fixedRight ? 0 : null}]}>
               {hasChildren ? <View style={generatedStyles.arrowStyle} /> : null}
               <View
                 onLayout={this.measureContent}
@@ -392,7 +405,34 @@ class Tooltip extends Component {
           {hasChildren && this.props.showChildInTooltip
             ? this.renderChildInTooltip()
             : null}
+          <View style={{
+            flexDirection: 'column',
+            position: 'absolute',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'transparent',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+          }}>
+            <TouchableWithoutFeedback onPress={this.props.onPress}>
+              <Image
+                  resizeMode="contain"
+                  style={{ height: L.hProm(94), width: L.wProm(94), marginBottom: L.h(25) }}
+                  source={this.props.step === '1' ? require('../../../app/common/assets/btnSiguiente1.png') : this.props.step === '2' ? require('../../../app/common/assets/btnSiguiente2.png') : require('../../../app/common/assets/btnSiguiente3.png')}
+              />
+            </TouchableWithoutFeedback>
+            <TouchableWithoutFeedback>
+              <Image
+                  resizeMode="contain"
+                  style={{ height: L.hProm(16), width: L.wProm(62) }}
+                  source={require("../../../app/common/assets/btnOmitir.png")}
+              />
+            </TouchableWithoutFeedback>
+          </View>
         </View>
+
       </TouchableWithoutFeedback>
     );
   };
@@ -409,7 +449,7 @@ class Tooltip extends Component {
           <Modal
             transparent
             visible={showTooltip}
-            onRequestClose={this.props.onClose}
+            onRequestClose={()=>{}}
             supportedOrientations={this.props.supportedOrientations}
           >
             {this.renderContentForTooltip()}
