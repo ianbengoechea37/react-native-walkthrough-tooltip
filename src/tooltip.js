@@ -24,7 +24,7 @@ import {
 } from './geom';
 import styleGenerator from './styles';
 import TooltipChildrenContext from './tooltip-children.context';
-import L from '../../../app/common/Layout';
+import L from './Layout';
 
 export { TooltipChildrenContext };
 
